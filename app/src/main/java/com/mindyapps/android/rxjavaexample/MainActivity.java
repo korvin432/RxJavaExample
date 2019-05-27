@@ -39,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
                     public boolean test(Task task) throws Exception {
                         return task.getPriority() < 9;
                     }
-                });
+                })
+                .subscribeOn(AndroidSchedulers.mainThread());
 
         observable.subscribe(new Observer<Task>() {
             @Override
