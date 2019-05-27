@@ -22,35 +22,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Observable<Task> observable = Observable
-                .range(0, 9)
+        Observable<Integer> observable = Observable
+                .range(0, 3)
                 .subscribeOn(Schedulers.io())
-                .map(new Function<Integer, Task>() {
-                    @Override
-                    public Task apply(Integer integer) throws Exception {
-                        Log.d(TAG, "apply: " + Thread.currentThread().getName());
-                        return new Task("this is a task with priority:" + String.valueOf(integer),
-                                false,
-                                integer );
-                    }
-                })
-                .takeWhile(new Predicate<Task>() {
-                    @Override
-                    public boolean test(Task task) throws Exception {
-                        return task.getPriority() < 9;
-                    }
-                })
+                .repeat(3)
                 .subscribeOn(AndroidSchedulers.mainThread());
 
-        observable.subscribe(new Observer<Task>() {
+        observable.subscribe(new Observer<Integer>() {
             @Override
             public void onSubscribe(Disposable d) {
 
             }
 
             @Override
-            public void onNext(Task task) {
-                Log.d(TAG, "onNext: " + task.getPriority());
+            public void onNext(Integer integer) {
+                Log.d(TAG, "onNext: " + integer);
             }
 
             @Override
