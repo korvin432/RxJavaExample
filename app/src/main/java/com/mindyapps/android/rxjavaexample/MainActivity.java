@@ -9,6 +9,7 @@ import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 
@@ -21,44 +22,44 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Observable<Task> taskObservable = Observable
-                .fromIterable(DataSource.createTasksList())
+        Observable<Task> observable = Observable
+                .range(0, 9)
                 .subscribeOn(Schedulers.io())
-                .filter(new Predicate<Task>() {
+                .map(new Function<Integer, Task>() {
                     @Override
-                    public boolean test(Task task) throws Exception {
-                        Log.d(TAG, "test: " + Thread.currentThread().getName());
-                        try{
-                            Thread.sleep(5000);
-                        } catch (InterruptedException e){
-                            e.printStackTrace();
-                        }
-                        return task.isComplete();
+                    public Task apply(Integer integer) throws Exception {
+                        Log.d(TAG, "apply: " + Thread.currentThread().getName());
+                        return new Task("this is a task with priority:" + String.valueOf(integer),
+                                false,
+                                integer );
                     }
                 })
-                .observeOn(AndroidSchedulers.mainThread());
+                .takeWhile(new Predicate<Task>() {
+                    @Override
+                    public boolean test(Task task) throws Exception {
+                        return task.getPriority() < 9;
+                    }
+                });
 
-        taskObservable.subscribe(new Observer<Task>() {
+        observable.subscribe(new Observer<Task>() {
             @Override
             public void onSubscribe(Disposable d) {
-                Log.d(TAG, "onSubscribe: called");
+
             }
 
             @Override
             public void onNext(Task task) {
-                Log.d(TAG, "onNext: " + Thread.currentThread().getName());
-                Log.d(TAG, "onNext: " + task.getDescription());
+                Log.d(TAG, "onNext: " + task.getPriority());
             }
 
             @Override
             public void onError(Throwable e) {
-                Log.e(TAG, "onError: " + e);
 
             }
 
             @Override
             public void onComplete() {
-                Log.d(TAG, "onComplete: called");
+
             }
         });
     }
